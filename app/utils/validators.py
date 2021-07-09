@@ -16,9 +16,9 @@ def validate_integer(arg_name, arg_value, min_value=None, max_value=None,
         arg_name (str): the name of the argument that will be used in the default error messages
         arg_value (obj): the value being validated
         min_value (int): optional, specifies the min value (inclusive)
-        max_value: optional, specifies the max value (inclusive)
-        custom_min_msg: optional, custom message when value is less than minimum
-        custom_max_msg: optional, custom message when value is greater than maximum
+        max_value (int): optional, specifies the max value (inclusive)
+        custom_min_msg (str): optional, custom message when value is less than minimum
+        custom_max_msg (str): optional, custom message when value is greater than maximum
 
     Returns:
         None: no exceptions will be raised if validation passes
