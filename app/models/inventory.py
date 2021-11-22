@@ -152,8 +152,8 @@ class Resource:
                          custom_max_msg=(f'Number of resources died'
                                          f'cannot exceed the number of allocated resources')
                          )
-        self._total -= num
         self._allocated -= num
+        self._total -= num
 
     def purchased(self, num):
         """
@@ -172,7 +172,5 @@ class Resource:
         return self.name
 
     def __repr__(self):
-        return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}), '
-                f'total={self.total}, allocated={self.allocated}')
-
-
+        return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
+                f'total={self.total}, allocated={self.allocated})')

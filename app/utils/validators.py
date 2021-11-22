@@ -4,6 +4,7 @@ Various validators
 
 """
 
+
 def validate_integer(arg_name, arg_value, min_value=None, max_value=None,
                      custom_min_msg=None, custom_max_msg=None):
     """

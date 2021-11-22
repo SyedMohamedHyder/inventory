@@ -7,6 +7,7 @@ Unittests for all the validators in app/utils/validators.py
 import pytest
 from app.utils.validators import validate_integer
 
+
 class TestIntegerValidator:
     """
 
