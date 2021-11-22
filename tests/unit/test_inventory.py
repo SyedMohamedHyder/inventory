@@ -156,3 +156,103 @@ class TestResource:
         """
         assert repr(resource) == (f'Resource(name={resource.name}, manufacturer={resource.manufacturer}, '
                                   f'total={resource.total}, allocated={resource.allocated})')
+
+    def test_claim(self, resource):
+        """
+
+        Test to check proper working of claim method
+
+        """
+        claim_num = 2
+        original_total = resource.total
+        original_allocated = resource.allocated
+        original_available = resource.available
+        resource.claim(claim_num)
+        assert resource.total == original_total
+        assert resource.allocated == original_allocated + claim_num
+        assert resource.available == original_available - claim_num
+
+    @pytest.mark.parametrize('claim_num', (0, -1, 6))
+    def test_claim_invalid(self, claim_num, resource):
+        """
+
+        Test to check if `ValueError` is raised when an invalid number of resources is claimed
+
+        """
+        with pytest.raises(ValueError):
+            resource.claim(claim_num)
+
+    def test_freeup(self, resource):
+        """
+
+        Test to check proper working of free_up method
+
+        """
+        freeup_num = 2
+        original_total = resource.total
+        original_allocated = resource.allocated
+        original_available = resource.available
+        resource.free_up(freeup_num)
+        assert resource.total == original_total
+        assert resource.allocated == original_allocated - freeup_num
+        assert resource.available == original_available + freeup_num
+
+    @pytest.mark.parametrize('freeup_num', (0, -1, 6))
+    def test_freeup_invalid(self, freeup_num, resource):
+        """
+
+        Test to check if `ValueError` is raised when an invalid number of resources is called to become free
+
+        """
+        with pytest.raises(ValueError):
+            resource.free_up(freeup_num)
+
+    def test_died(self, resource):
+        """
+
+        Test to check proper working of died method
+
+        """
+        died_num = 2
+        original_total = resource.total
+        original_allocated = resource.allocated
+        original_available = resource.available
+        resource.died(died_num)
+        assert resource.total == original_total - died_num
+        assert resource.allocated == original_allocated - died_num
+        assert resource.available == original_available
+
+    @pytest.mark.parametrize('died_num', (0, -1, 6))
+    def test_died_invalid(self, died_num, resource):
+        """
+
+        Test to check if `ValueError` is raised when an invalid number of resources is said to be dead
+
+        """
+        with pytest.raises(ValueError):
+            resource.died(died_num)
+
+    def test_purchased(self, resource):
+        """
+
+        Test to check proper working of purchased method
+
+        """
+        purchased_num = 1000
+        original_total = resource.total
+        original_allocated = resource.allocated
+        original_available = resource.available
+        resource.purchased(purchased_num)
+        assert resource.total == original_total + purchased_num
+        assert resource.allocated == original_allocated
+        assert resource.available == original_available + purchased_num
+
+    @pytest.mark.parametrize('purchased_num', (0, -1))
+    def test_purchased_invalid(self, purchased_num, resource):
+        """
+
+        Test to check if `ValueError` is raised when an invalid number of resources is said to be purchased
+
+        """
+        with pytest.raises(ValueError):
+            resource.purchased(purchased_num)
