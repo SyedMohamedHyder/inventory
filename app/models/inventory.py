@@ -174,3 +174,68 @@ class Resource:
     def __repr__(self):
         return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
                 f'total={self.total}, allocated={self.allocated})')
+
+
+class CPU(Resource):
+    """
+
+    Subclass of Resource which tracks the resources related to CPUs
+
+    """
+    def __init__(self, name, manufacturer, total, allocated, cores, sockets, power_watts):
+        """
+
+        Args:
+            name (str): Name of the resource
+            manufacturer (str): Manufacturer of the resource
+            total (int): Current total amount of resources
+            allocated (int): Total amount of resources in-use
+            cores (int): Number of cores in the CPU
+            sockets (str): Name of the CPU socket
+            power_watts (int): Power consumed by the CPU in watts
+
+        Note:
+            `allocated` should not exceed `total`
+
+        """
+        super().__init__(name, manufacturer, total, allocated)
+        validate_integer('cores', cores, 1)
+        validate_integer('power_watts', power_watts, 1)
+        self._cores = cores
+        self._sockets = sockets
+        self._power_watts = power_watts
+
+    @property
+    def cores(self):
+        """
+
+        Returns:
+            int : Cores available in the CPU
+
+        """
+        return self._cores
+
+    @property
+    def sockets(self):
+        """
+
+        Returns:
+            str : Name of the CPU socket
+
+        """
+        return self._sockets
+
+    @property
+    def power_watts(self):
+        """
+
+        Returns:
+            int : Power in watts consumed by the CPU
+
+        """
+        return self._power_watts
+
+    def __repr__(self):
+        return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
+                f'total={self.total}, allocated={self.allocated}, '
+                f'cores={self.cores}), sockets={self.sockets}, power_watts={self.power_watts}')
