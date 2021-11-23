@@ -238,4 +238,4 @@ class CPU(Resource):
     def __repr__(self):
         return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
                 f'total={self.total}, allocated={self.allocated}, '
-                f'cores={self.cores}), sockets={self.sockets}, power_watts={self.power_watts}')
+                f'cores={self.cores}, sockets={self.sockets}, power_watts={self.power_watts})')

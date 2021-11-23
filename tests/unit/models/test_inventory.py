@@ -9,6 +9,7 @@ import pytest
 from app.models import inventory
 
 
+# Fixtures for Resource class
 @pytest.fixture
 def resource_values():
     return dict(name='Zenbook15',
@@ -28,10 +29,34 @@ def resource_readonly_props(resource_values):
     return resource_values.keys() | extra_props
 
 
+# Fixtures for CPU class
+@pytest.fixture
+def cpu_values():
+    return dict(
+        name='Intel Core i7',
+        manufacturer='Intel',
+        total=10,
+        allocated=5,
+        cores=7,
+        sockets='10 Gen',
+        power_watts=5
+    )
+
+
+@pytest.fixture
+def cpu(cpu_values):
+    return inventory.CPU(**cpu_values)
+
+
+@pytest.fixture
+def cpu_readonly_props(resource_readonly_props, cpu_values):
+    return resource_readonly_props | cpu_values.keys()
+
+
 class TestResource:
     """
 
-    Tests for the resource class in app/models/inventory.py
+    Tests for the Resource class in app/models/inventory.py
 
     """
 
@@ -136,26 +161,9 @@ class TestResource:
         Test to check if an `AttributeError` is raised when a value is set to read-only properties
 
         """
-        with pytest.raises(AttributeError):
-            for attr_name in resource_readonly_props:
+        for attr_name in resource_readonly_props:
+            with pytest.raises(AttributeError):
                 setattr(resource, attr_name, None)
-
-    def test_str_repr(self, resource):
-        """
-
-        Test to check the __str__ of the Resource
-
-        """
-        assert str(resource) == resource.name
-
-    def test_repr_repr(self, resource):
-        """
-
-        Test to check __repr__ of the Resource
-
-        """
-        assert repr(resource) == (f'Resource(name={resource.name}, manufacturer={resource.manufacturer}, '
-                                  f'total={resource.total}, allocated={resource.allocated})')
 
     def test_claim(self, resource):
         """
@@ -256,3 +264,99 @@ class TestResource:
         """
         with pytest.raises(ValueError):
             resource.purchased(purchased_num)
+
+    def test_str_repr(self, resource):
+        """
+
+        Test to check the __str__ of the Resource
+
+        """
+        assert str(resource) == resource.name
+
+    def test_repr_repr(self, resource):
+        """
+
+        Test to check __repr__ of the Resource
+
+        """
+        assert repr(resource) == (f'Resource(name={resource.name}, manufacturer={resource.manufacturer}, '
+                                  f'total={resource.total}, allocated={resource.allocated})')
+
+
+class TestCPU:
+    """
+
+    Tests for the CPU class in app/models/inventory.py
+
+    """
+
+    def test_create_valid_cpu(self, cpu_values, cpu):
+        """
+
+        Test for a valid CPU
+
+        """
+        for attr_name, attr_value in cpu_values.items():
+            assert getattr(cpu, attr_name) == attr_value
+
+    def test_invalid_cores_type(self, cpu_values):
+        """
+
+        Test to check if `TypeError` is raised when an invalid type is passed as cores to CPU
+
+        """
+        cpu_values['cores'] = 10.5
+        with pytest.raises(TypeError):
+            inventory.CPU(**cpu_values)
+
+    @pytest.mark.parametrize('cores', (0, -1))
+    def test_invalid_cores_value(self, cores, cpu_values):
+        """
+
+        Test to check if a `ValueError` is raised when an invalid number of cores is passed to CPU
+
+        """
+        cpu_values['cores'] = cores
+        with pytest.raises(ValueError):
+            inventory.CPU(**cpu_values)
+
+    def test_invalid_power_watts_type(self, cpu_values):
+        """
+
+        Test to check if `TypeError` is raised when an invalid type is passed as power_watts to CPU
+
+        """
+        cpu_values['power_watts'] = 10.5
+        with pytest.raises(TypeError):
+            inventory.CPU(**cpu_values)
+
+    @pytest.mark.parametrize('power_watts', (0, -1))
+    def test_invalid_power_watts_value(self, power_watts, cpu_values):
+        """
+
+        Test to check if a `ValueError` is raised when an invalid number of power_watts is passed to CPU
+
+        """
+        cpu_values['power_watts'] = power_watts
+        with pytest.raises(ValueError):
+            inventory.CPU(**cpu_values)
+
+    def test_invalid_readonly_prop_assignments(self, cpu, cpu_readonly_props):
+        """
+
+        Tests if an `AttributeError` is raised when a value is assigned to a read-only property
+
+        """
+        for readonly_prop in cpu_readonly_props:
+            with pytest.raises(AttributeError):
+                setattr(cpu, readonly_prop, None)
+
+    def test_repr_repr(self, cpu):
+        """
+
+        Test to check __repr__ of the Resource
+
+        """
+        assert repr(cpu) == (f'CPU(name={cpu.name}, manufacturer={cpu.manufacturer}, '
+                             f'total={cpu.total}, allocated={cpu.allocated}, '
+                             f'cores={cpu.cores}, sockets={cpu.sockets}, power_watts={cpu.power_watts})')
