@@ -53,6 +53,18 @@ def cpu_readonly_props(resource_readonly_props, cpu_values):
     return resource_readonly_props | cpu_values.keys()
 
 
+# Fixtures for the Storage class
+@pytest.fixture
+def storage_values(resource_values):
+    extra_values = dict(capacity_gb=1)
+    return dict(**resource_values, **extra_values)
+
+
+@pytest.fixture
+def storage(storage_values):
+    return inventory.Storage(**storage_values)
+
+
 class TestResource:
     """
 
@@ -341,6 +353,30 @@ class TestCPU:
         with pytest.raises(ValueError):
             inventory.CPU(**cpu_values)
 
+    def test_cores_property(self, cpu):
+        """
+
+        Test to check the cores property
+
+        """
+        assert cpu.cores == cpu._cores
+
+    def test_sockets_property(self, cpu):
+        """
+
+        Test to check the sockets property
+
+        """
+        assert cpu.sockets == cpu._sockets
+
+    def test_power_watts_property(self, cpu):
+        """
+
+        Test to check the power_watts property
+
+        """
+        assert cpu.power_watts == cpu._power_watts
+
     def test_invalid_readonly_prop_assignments(self, cpu, cpu_readonly_props):
         """
 
@@ -360,3 +396,68 @@ class TestCPU:
         assert repr(cpu) == (f'CPU(name={cpu.name}, manufacturer={cpu.manufacturer}, '
                              f'total={cpu.total}, allocated={cpu.allocated}, '
                              f'cores={cpu.cores}, sockets={cpu.sockets}, power_watts={cpu.power_watts})')
+
+
+class TestStorage:
+    """
+
+    Test for Storage class in app/models/inventory.py
+
+    """
+
+    def test_create_storage(self, storage, storage_values):
+        """
+
+        Test to check a valid Storage
+
+        """
+        for attr_name, attr_value in storage_values.items():
+            assert getattr(storage, attr_name) == attr_value
+
+    @pytest.mark.parametrize('capacity_gb, exception',
+                             [(1.5, TypeError), (0, ValueError), (-1, ValueError)])
+    def test_invalid_capacity_gb(self, capacity_gb, exception, storage_values):
+        """
+
+        Test to check if proper exception is raised when invalid values are passed as capacity_gb to Storage
+
+        """
+        storage_values['capacity_gb'] = capacity_gb
+        with pytest.raises(exception):
+            inventory.Storage(**storage_values)
+
+    def test_capacity_gb_prop(self, storage):
+        """
+
+        Test to check the capacity_gb property
+
+        """
+        assert storage.capacity_gb == storage._capacity_gb
+
+    def test_invalid_readonly_prop_assignments(self, storage, storage_values):
+        """
+
+        Tests if an `AttributeError` is raised when a value is assigned to a read-only property
+
+        """
+        for readonly_prop in storage_values:
+            with pytest.raises(AttributeError):
+                setattr(storage, readonly_prop, None)
+
+    def test_str_repr(self, storage):
+        """
+
+        Test to check __str__ of Storage class
+
+        """
+        assert str(storage) == f'storage : {storage.capacity_gb} GB'
+
+    def test_repr_repr(self, storage):
+        """
+
+        Test to check __repr__ of Storage class
+
+        """
+        assert repr(storage) == (f'Storage(name={storage.name}, manufacturer={storage.manufacturer}, '
+                                 f'total={storage.total}, allocated={storage.allocated}, '
+                                 f'capacity_gb={storage.capacity_gb})')

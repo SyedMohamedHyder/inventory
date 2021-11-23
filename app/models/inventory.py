@@ -239,3 +239,48 @@ class CPU(Resource):
         return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
                 f'total={self.total}, allocated={self.allocated}, '
                 f'cores={self.cores}, sockets={self.sockets}, power_watts={self.power_watts})')
+
+
+class Storage(Resource):
+    """
+
+    Base class for all storage devices, inheriting from the Resource class
+
+    """
+
+    def __init__(self, name, manufacturer, total, allocated, capacity_gb):
+        """
+
+        Args:
+            name (str): Name of the resource
+            manufacturer (str): Manufacturer of the resource
+            total (int): Current total amount of resources
+            allocated (int): Total amount of resources in-use
+            capacity_gb (int): Capacity of the storage resource in GigaBytes
+
+        Note:
+            `allocated` should not exceed `total`
+
+        """
+        super().__init__(name, manufacturer, total, allocated)
+
+        validate_integer('capacity_gb', capacity_gb, 1)
+        self._capacity_gb = capacity_gb
+
+    @property
+    def capacity_gb(self):
+        """
+
+        Returns:
+            int : capacity of the storage resource in GigaBytes
+
+        """
+        return self._capacity_gb
+
+    def __str__(self):
+        return f'{self.category} : {self.capacity_gb} GB'
+
+    def __repr__(self):
+        return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
+                f'total={self.total}, allocated={self.allocated}, '
+                f'capacity_gb={self.capacity_gb})')
