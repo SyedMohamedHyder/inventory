@@ -65,6 +65,29 @@ def storage(storage_values):
     return inventory.Storage(**storage_values)
 
 
+# Fixtures for the HDD class
+@pytest.fixture
+def hdd_values(storage_values):
+    extra_values = dict(size='2.5"', rpm=10000)
+    return dict(**storage_values, **extra_values)
+
+
+@pytest.fixture
+def hdd(hdd_values):
+    return inventory.HDD(**hdd_values)
+
+
+# Fixtures for the SSD class
+@pytest.fixture
+def ssd_values(storage_values):
+    extra_values = dict(interface='PCIe NVMe 3.0 x4')
+    return dict(**storage_values, **extra_values)
+
+
+@pytest.fixture
+def ssd(ssd_values):
+    return inventory.SSD(**ssd_values)
+
 class TestResource:
     """
 
@@ -461,3 +484,140 @@ class TestStorage:
         assert repr(storage) == (f'Storage(name={storage.name}, manufacturer={storage.manufacturer}, '
                                  f'total={storage.total}, allocated={storage.allocated}, '
                                  f'capacity_gb={storage.capacity_gb})')
+
+
+class TestHDD:
+    """
+
+    Test for HDD class in app/models/inventory.py
+
+    """
+
+    def test_create_hdd(self, hdd_values, hdd):
+        """
+
+        Test to check hdd creation
+
+        """
+        for attr_name, attr_value in hdd_values.items():
+            assert getattr(hdd, attr_name) == attr_value
+
+    @pytest.mark.parametrize('size', ('1.5"', 2.5))
+    def test_invalid_size(self, size, hdd_values):
+        """
+
+        Test to check if `ValueError` is raised when a value other than '2.5"' or '3.5"' is passed to the size
+
+        """
+        hdd_values['size'] = size
+        with pytest.raises(ValueError):
+            inventory.HDD(**hdd_values)
+
+    @pytest.mark.parametrize('rpm, exception',
+                             [(1000.5, TypeError), (999, ValueError), (50_001, ValueError)])
+    def test_invalid_rpm(self, rpm, exception, hdd_values):
+        """
+
+        Test to check if the proper exception is raised for invalid values passed to rpm of HDD class
+
+        """
+        hdd_values['rpm'] = rpm
+        with pytest.raises(exception):
+            inventory.HDD(**hdd_values)
+
+    def test_size_prop(self, hdd):
+        """
+
+        Test to check the proper working of the size property
+
+        """
+        assert hdd.size == hdd._size
+
+    def test_rpm_prop(self, hdd):
+        """
+
+        Test to check the proper working of the size property
+
+        """
+        assert hdd.rpm == hdd._rpm
+
+    def test_invalid_readonly_prop_assignments(self, hdd, hdd_values):
+        """
+
+        Tests if an `AttributeError` is raised when a value is assigned to a read-only property
+
+        """
+        for readonly_prop in hdd_values:
+            with pytest.raises(AttributeError):
+                setattr(hdd, readonly_prop, None)
+
+    def test_str_repr(self, hdd):
+        """
+
+        Test to check __str__ of HDD class
+
+        """
+        assert str(hdd) == f'hdd : {hdd.capacity_gb} GB'
+
+    def test_repr_repr(self, hdd):
+        """
+
+        Test to check __repr__ of HDD class
+
+        """
+        assert repr(hdd) == (f'HDD(name={hdd.name}, manufacturer={hdd.manufacturer}, '
+                             f'total={hdd.total}, allocated={hdd.allocated}, '
+                             f'capacity_gb={hdd.capacity_gb}, size={hdd.size}, rpm={hdd.rpm})')
+
+
+class TestSSD:
+    """
+
+    Test for SSD class in app/models/inventory.py
+
+    """
+
+    def test_create_ssd(self, ssd_values, ssd):
+        """
+
+        Test to check ssd creation
+
+        """
+        for attr_name, attr_value in ssd_values.items():
+            assert getattr(ssd, attr_name) == attr_value
+
+    def test_interface_prop(self, ssd):
+        """
+
+        Test to check the proper working of the interface property
+
+        """
+        assert ssd.interface == ssd._interface
+
+    def test_invalid_readonly_prop_assignments(self, ssd, ssd_values):
+        """
+
+        Tests if an `AttributeError` is raised when a value is assigned to a read-only property
+
+        """
+        for readonly_prop in ssd_values:
+            with pytest.raises(AttributeError):
+                setattr(ssd, readonly_prop, None)
+
+    def test_str_repr(self, ssd):
+        """
+
+        Test to check __str__ of SSD class
+
+        """
+        assert str(ssd) == f'ssd : {ssd.capacity_gb} GB'
+
+    def test_repr_repr(self, ssd):
+        """
+
+        Test to check __repr__ of SSD class
+
+        """
+        assert repr(ssd) == (f'SSD(name={ssd.name}, manufacturer={ssd.manufacturer}, '
+                             f'total={ssd.total}, allocated={ssd.allocated}, '
+                             f'capacity_gb={ssd.capacity_gb}, interface={ssd.interface})')

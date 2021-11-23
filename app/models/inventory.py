@@ -284,3 +284,105 @@ class Storage(Resource):
         return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
                 f'total={self.total}, allocated={self.allocated}, '
                 f'capacity_gb={self.capacity_gb})')
+
+
+class HDD(Storage):
+    """
+
+    Base class for all HDD storage resources which derives from the Storage class
+
+    """
+
+    def __init__(self, name, manufacturer, total, allocated, capacity_gb, size, rpm):
+        """
+
+        Args:
+            name (str): Name of the resource
+            manufacturer (str): Manufacturer of the resource
+            total (int): Current total amount of resources
+            allocated (int): Total amount of resources in-use
+            capacity_gb (int): Capacity of the storage resource in GigaBytes
+            size (str): Size of the HDD resource in inches (must be either 2.5" or 3.5")
+            rpm (int): HDD spin speed (1000 to 50000 rpm)
+
+        Note:
+            `allocated` should not exceed `total`
+
+        """
+        super().__init__(name, manufacturer, total, allocated, capacity_gb)
+
+        allowed_sizes = {'2.5"', '3.5"'}
+
+        if size not in allowed_sizes:
+            raise ValueError(f'Invalid HDD size. It must be one of {" ,".join(allowed_sizes)}')
+
+        self._size = size
+
+        validate_integer('rpm', rpm, 1_000, 50_000)
+        self._rpm = rpm
+
+    @property
+    def size(self):
+        """
+
+        Returns:
+            str : Size of the HDD resource in inches (must be either 2.5" or 3.5")
+
+        """
+        return self._size
+
+    @property
+    def rpm(self):
+        """
+
+        Returns:
+            int : HDD spin speed (1000 to 50000 rpm)
+
+        """
+        return self._rpm
+
+    def __repr__(self):
+        return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
+                f'total={self.total}, allocated={self.allocated}, '
+                f'capacity_gb={self.capacity_gb}, size={self.size}, rpm={self.rpm})')
+
+
+class SSD(Storage):
+    """
+
+    Base class for all SSD storage resources which derives from the Storage class
+
+    """
+
+    def __init__(self, name, manufacturer, total, allocated, capacity_gb, interface):
+        """
+
+        Args:
+            name (str): Name of the resource
+            manufacturer (str): Manufacturer of the resource
+            total (int): Current total amount of resources
+            allocated (int): Total amount of resources in-use
+            capacity_gb (int): Capacity of the storage resource in GigaBytes
+            interface (str): Indicates the device interface (e.g. PCIe NVMe 3.0 x4)
+
+        Note:
+            `allocated` should not exceed `total`
+
+        """
+        super().__init__(name, manufacturer, total, allocated, capacity_gb)
+        self._interface = interface
+
+    @property
+    def interface(self):
+        """
+
+        Returns:
+            str : Indicates the device interface (e.g. PCIe NVMe 3.0 x4)
+
+        """
+        return self._interface
+
+    def __repr__(self):
+        return (f'{type(self).__name__}(name={self.name}, manufacturer={self.manufacturer}, '
+                f'total={self.total}, allocated={self.allocated}, '
+                f'capacity_gb={self.capacity_gb}, interface={self.interface})')
